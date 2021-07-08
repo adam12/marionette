@@ -17,6 +17,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/google/uuid"
@@ -194,11 +195,24 @@ func (p *Parser) Parse() ([]rules.Rule, error) {
 				return found, er
 			}
 
+			originalDir, _ := p.e.Get("DIR")
+
+			dir, er := filepath.Abs(filepath.Dir(path))
+
+			if er != nil {
+				return found, er
+			}
+
+			p.e.Set("DIR", dir)
+
 			//
 			// Create a new parser instance, making sure
 			// that it uses the same environment we're using.
 			//
+
 			tmp := NewWithEnvironment(string(data), p.e)
+
+			p.e.Set("DIR", originalDir)
 
 			//
 			// Also make sure we propagate the files

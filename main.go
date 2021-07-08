@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/skx/marionette/config"
 	"github.com/skx/marionette/environment"
@@ -21,8 +22,16 @@ func runFile(filename string, cfg *config.Config) error {
 		return err
 	}
 
+	dir, err := filepath.Abs(filepath.Dir(filename))
+	if err != nil {
+		return err
+	}
+
 	// Create a new execution environment
 	env := environment.New()
+
+	// Setup directory of current file in environment
+	env.Set("DIR", dir)
 
 	// Create a new parser, ensuring it uses the new environment.
 	p := parser.NewWithEnvironment(string(data), env)
